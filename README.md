@@ -1,6 +1,6 @@
 # `what-was-that`
 
-A simple tool to remember which command does what.
+A simple tool to remember little things.
 
 ## Motivation
 
