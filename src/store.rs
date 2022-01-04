@@ -61,12 +61,11 @@ pub enum StoreErrorKind {
     KeyNotFound(String),
 }
 
-impl StoreErrorKind {
-    /// Convert the error to a string.
-    pub fn to_string(&self) -> String {
+impl fmt::Display for StoreErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             StoreErrorKind::KeyNotFound(key) => {
-                format!("Key not found: {}", key)
+                write!(f, "Key not found: {}", key)
             }
         }
     }
@@ -95,13 +94,10 @@ impl Store<'_> {
     /// Loads the store from the store file.
     fn load(&mut self) -> Result<(), StoreError> {
         // If the parent directory of the store file does not exist, create it.
-        match self.store_path.parent() {
-            Some(parent_dir) => {
-                if !parent_dir.exists() {
-                    std::fs::create_dir_all(parent_dir)?;
-                }
+        if let Some(parent_dir) = self.store_path.parent() {
+            if !parent_dir.exists() {
+                std::fs::create_dir_all(parent_dir)?;
             }
-            None => {}
         }
         // If the store file does not exist, create it.
         if !self.store_path.exists() {
@@ -141,12 +137,9 @@ impl Store<'_> {
         let matcher = SkimMatcherV2::default();
         let mut matches = Vec::new();
         for (k, v) in self.store.iter() {
-            let score = matcher.fuzzy_match(&v, &description);
-            match score {
-                Some(_) => {
-                    matches.push([k.to_string(), v.to_string()]);
-                }
-                None => {}
+            let score = matcher.fuzzy_match(v, description);
+            if score.is_some() {
+                matches.push([k.to_string(), v.to_string()]);
             }
         }
         matches

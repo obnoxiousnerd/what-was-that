@@ -48,7 +48,7 @@ fn main() {
         }
         Commands::Find { description } => {
             let matches = store.find(description.as_str());
-            if matches.len() == 0 {
+            if matches.is_empty() {
                 eprintln!("No matches found.");
                 std::process::exit(1);
             } else {
